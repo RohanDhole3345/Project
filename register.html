@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register Hostel | HostelFinder</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://kit.fontawesome.com/3ab914e37c.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <nav>
+    <div class="logo">
+      <h1>HostelFinder</h1>
+    </div>
+    <input type="checkbox" id="click" />
+    <label for="click" class="menu-btn">
+      <i class="fas fa-bars"></i>
+    </label>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="search.html">Search</a></li>
+      <li><a href="register.html" class="active">Register Hostel</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section class="register-section">
+      <h2>Register Your Hostel</h2>
+      <p>Fill in the details below to list your hostel on HostelFinder.</p>
+
+      <form class="register-form" id="hostelRegistrationForm">
+        <input type="text" name="hostelName" placeholder="Hostel Name" required />
+        <input type="text" name="ownerName" placeholder="Owner Name" required />
+        <input type="tel" name="phone" placeholder="Contact Number" required />
+        <input type="email" name="email" placeholder="Email Address" required />
+        <input type="text" name="address" placeholder="Full Address" required />
+        <input type="text" name="cityVillage" placeholder="City or Village Name" required />
+        <input type="text" name="landmark" placeholder="Nearby Landmark (Optional)" />
+        <input type="number" name="rooms" placeholder="Number of Rooms" required min="1" />
+        <input type="text" name="price" placeholder="Price Range (e.g., ₹3000 - ₹5000)" required />
+        <textarea name="description" rows="4" placeholder="Short Description (facilities, type, etc.)" required></textarea>
+        <button type="submit"><i class="fas fa-plus-circle"></i> Submit Hostel</button>
+    </form>
+      
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <h2 class="footer-title">HostelFinder</h2>
+      <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <div class="footer-socials">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+      <p class="footer-copy">&copy; 2025 HostelFinder. All rights reserved.</p>
+    </div>
+  </footer>
+  <script>
+    document.getElementById('hostelRegistrationForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const formData = new FormData(form);
+        const responseDiv = document.getElementById('responseMessage');
+        
+        // Convert form data to JSON
+        const jsonData = {};
+        formData.forEach((value, key) => {
+            jsonData[key] = value;
+        });
+        
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+        // Send data to server
+        fetch('register.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(jsonData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            responseDiv.style.display = 'block';
+            if (data.success) {
+                responseDiv.innerHTML = `
+                    <div class="success-message">
+                        <i class="fas fa-check-circle"></i>
+                        ${data.message}
+                    </div>
+                `;
+                form.reset();
+            } else {
+                responseDiv.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        ${data.message || 'Registration failed. Please try again.'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Network error. Please check your connection and try again.
+                </div>
+            `;
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Submit Hostel';
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                responseDiv.style.display = 'none';
+            }, 5000);
+        });
+    });
+    </script>
+</body>
+</html>

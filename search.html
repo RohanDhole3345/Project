@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search | HostelFinder</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/3ab914e37c.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <h1>HostelFinder</h1>
+        </div>
+        <input type="checkbox" id="click">
+        <label for="click" class="menu-btn">
+            <i class="fas fa-bars"></i>
+        </label>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a class="active" href="search.html">Search</a></li>
+            <li><a href="about.html">About</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section class="search-section">
+            <h2>Find Hostels Near You</h2>
+            <p>Enter your village, city, or a landmark to discover nearby hostels.</p>
+
+            <form class="search-form" onsubmit="searchHostels(event)">
+                <input type="text" id="search-input" placeholder="E.g., MG Road, Bangalore" required>
+                <button type="submit"><i class="fas fa-search"></i> Search</button>
+            </form>
+
+            <div id="search-results">
+                <!-- Results will show here -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <h2 class="footer-title">HostelFinder</h2>
+            <ul class="footer-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="search.html"class="active">Search</a></li>
+                <li><a href="register.html">Register Hostel</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+            <div class="footer-socials">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <p class="footer-copy">&copy; 2025 HostelFinder. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function searchHostels(event) {
+    event.preventDefault();
+    const input = document.getElementById('search-input').value.trim();
+    const resultsContainer = document.getElementById('search-results');
+    
+    if (!input) {
+        resultsContainer.innerHTML = "<p>Please enter a location to search.</p>";
+        return;
+    }
+    
+    resultsContainer.innerHTML = "<div class='loading'><i class='fas fa-spinner fa-spin'></i> Searching...</div>";
+    
+    fetch(`search.php?q=${encodeURIComponent(input)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data.length > 0) {
+                resultsContainer.innerHTML = data.data.map(hostel => `
+                    <div class="result-card">
+                        <h3>${hostel.name}</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> ${hostel.location} ${hostel.landmark ? `(Near ${hostel.landmark})` : ''}</p>
+                        <p><i class="fas fa-home"></i> ${hostel.address}</p>
+                        <p><i class="fas fa-phone"></i> ${hostel.contact}</p>
+                        <p><i class="fas fa-tag"></i> ${hostel.price} | <i class="fas fa-door-open"></i> ${hostel.rooms} rooms</p>
+                    </div>
+                `).join('');
+            } else {
+                resultsContainer.innerHTML = `<p>${data.message || 'No hostels found in this area.'}</p>`;
+            }
+        })
+        .catch(error => {
+            resultsContainer.innerHTML = "<p>Error searching for hostels. Please try again later.</p>";
+            console.error('Error:', error);
+        });
+}
+    </script>
+</body>
+</html>
